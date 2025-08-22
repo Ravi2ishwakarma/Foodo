@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - Tiffin Service</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <header>
+        <h1>Login to Tiffin Service</h1>
+    </header>
+
+    <main>
+        <form id="login-form">
+            <label>
+        Email:
+        <input type="email" id="email" required />
+      </label>
+            <label>
+        Password:
+        <input type="password" id="password" required />
+      </label>
+            <button type="submit">Login</button>
+        </form>
+        <p>Don't have an account? <a href="register.html">Register here</a></p>
+        <div id="login-message"></div>
+    </main>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('public/login.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email,
+                    password
+                })
+            });
+
+            const result = await response.json();
+
+            const msgDiv = document.getElementById('login-message');
+            if (result.status === 'success') {
+                msgDiv.textContent = 'Login successful! Redirecting...';
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            } else {
+                msgDiv.textContent = 'Login failed: ' + result.message;
+            }
+        });
+    </script>
+</body>
+
+</html>

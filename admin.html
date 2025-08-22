@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Panel - Tiffin Service</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <header>
+        <h1>Admin Panel</h1>
+    </header>
+
+    <main>
+
+        <section>
+            <h2>Add New Tiffin</h2>
+            <form id="add-food-form">
+                <input type="text" id="food-name" placeholder="Food name" required />
+                <input type="text" id="food-desc" placeholder="Description" />
+                <input type="number" id="food-price" placeholder="Price" step="0.01" required />
+                <input type="text" id="food-image" placeholder="Image URL" />
+                <button type="submit">Add Food</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Manage Tiffins</h2>
+            <div id="admin-food-list">Loading...</div>
+        </section>
+    </main>
+
+    <script>
+        // Fetch food list
+        function loadAdminFoods() {
+            fetch('public/foods_list_admin.php')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('admin-food-list');
+                    container.innerHTML = '';
+                    data.forEach(food => {
+                        const item = document.createElement('div');
+                        item.className = 'food-item';
+                        item.innerHTML = `
+              <strong>${food.name}</strong> - ₹${food.price}
+              <br>${food.description}
+              <br><button onclick="deleteFood(${food.id})">Delete</button>
+            `;
+                        container.appendChild(item);
+                    });
+                });
+        }
+
+        // Add food
+        document.getElementById('add-food-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('food-name').value,
+                description: document.getElementById('food-desc').value,
+                price: parseFloat(document.getElementById('food-price').value),
+                image: document.getElementById('food-image').value,
+            };
+
+            fetch('public/add_food.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data),
+                })
+                .then(res => res.json())
+                .then(res => {
+                    alert(res.message);
+                    if (res.status === 'success') {
+                        document.getElementById('add-food-form').reset();
+                        loadAdminFoods();
+                    }
+                });
+        });
+
+        // Delete food
+        function deleteFood(id) {
+            if (!confirm('Are you sure?')) return;
+
+            fetch('public/delete_food.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id
+                    }),
+                })
+                .then(res => res.json())
+                .then(res => {
+                    alert(res.message);
+                    if (res.status === 'success') {
+                        loadAdminFoods();
+                    }
+                });
+        }
+
+        loadAdminFoods();
+    </script>
+</body>
+
+</html>

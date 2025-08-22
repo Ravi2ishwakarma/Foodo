@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Register - Tiffin Service</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <header>
+        <h1>Create an Account</h1>
+    </header>
+
+    <main>
+        <form id="register-form">
+            <label>
+        Name:
+        <input type="text" id="name" required />
+      </label>
+            <label>
+        Email:
+        <input type="email" id="email" required />
+      </label>
+            <label>
+        Password:
+        <input type="password" id="password" required minlength="6" />
+      </label>
+            <button type="submit">Register</button>
+        </form>
+        <p>Already have an account? <a href="login.html">Login here</a></p>
+        <div id="register-message"></div>
+    </main>
+
+    <script>
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('public/register.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password
+                })
+            });
+
+            const result = await response.json();
+
+            const msgDiv = document.getElementById('register-message');
+            if (result.status === 'success') {
+                msgDiv.textContent = 'Registration successful! Redirecting to login...';
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            } else {
+                msgDiv.textContent = 'Registration failed: ' + result.message;
+            }
+        });
+    </script>
+</body>
+
+</html>
